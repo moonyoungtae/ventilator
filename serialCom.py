@@ -3,8 +3,10 @@ import binascii
 import serial
 import time
 import struct
+import timeOut as to
 
-port_1 = serial.Serial("COM3", baudrate=9600, timeout=20.0)
+
+port_1 = serial.Serial("/dev/ttyUSB0", baudrate=9600, timeout=3.0)
 # port_2 = serial.Serial("/dev/ttyUSB2", baudrate=9600, timeout=3.0)
 
 slow = bytearray.fromhex("FF FE 00 07 2F 01 00 46 50 00 32")
@@ -17,7 +19,7 @@ speed_control_50 = bytearray.fromhex("FF FE 00 06 F7 03 00 01 F4 0A")
 speed_control_0 = bytearray.fromhex("FF FE 00 06 EC 03 00 00 00 0A")
 
 absolute = bytearray.fromhex("FF FE 00 03 F1 0B 00")
-pos_feedback = bytearray.fromhex("FF FE 00 02 5C A1")
+
 init_pos = bytearray.fromhex("FF FE 00 02 F1 0C")
 
 def to_hex_string(n):
@@ -142,8 +144,7 @@ def pos_control(pos,t,dir):
     # dir: true for ccw, false for cw
     if (pos < -1):
         pos = 360.0+pos
-        dir=not dir
-
+        #dir=not dir
     hex_pos = pos_to_protocol(abs(pos))
     hex_time=time_to_protocol(t)
     cks, rev_cks = get_checksum(0, abs(pos),t,1)
@@ -156,7 +157,6 @@ def pos_control(pos,t,dir):
     s5 = hex_time
     control = (s1 + s2 + s3 + s4 + s5)
     reverse = (s1 + rev_s2 + rev_s3 + s4 + s5)
-
     if (dir):
         port_1.write(bytearray.fromhex(control))
     else:
@@ -222,25 +222,46 @@ def setPostionControlMode(rel=True):
 
 def stop():
     #stop moving, automatically initailize position
-    speed_control(0,0.2,True)
+    speed_control(0,1,True)
 
 def initPos():
     port_1.write(init_pos)
     print("Position initialized")
     time.sleep(1)
 
-def getFeedback():
+def getFeedback(mode):
+    #mode: 0~9
     len=12
     out=[]
+
+    cks=to_hex_string(255 - (2+hex_to_num("A")*16+mode) % 256)
+
+    feed="FF FE 00 02 "+cks+" A"+str(mode)
+    pos_feedback = bytearray.fromhex(feed)
     port_1.write(pos_feedback)
     for i in range(len):
         tmp=port_1.read()
         out.append((binascii.hexlify(bytearray(tmp))).decode('ascii'))
-    pos=string_to_num(out[7],out[8])
-    speed=string_to_num(out[9],out[10])
+    if(mode==1):
+        pos = string_to_num(out[7], out[8])
+        speed = string_to_num(out[9], out[10])
+        return pos / 100, speed / 10
+    elif(mode==2):
+        speed = string_to_num(out[7], out[8])
+        pos = string_to_num(out[9], out[10])
+        return pos / 100, speed / 10
+    elif(mode==3 or mode==4):
+        kp=string_to_num("",out[6])
+        ki = string_to_num("", out[7])
+        kd = string_to_num("", out[8])
+        return [kp,ki,kd]
+    else:
+        print("---")
 
-    return pos/100, speed/10
-
+@to.timeout(0.5)
+def getPos():
+    pos,speed=getFeedback(1)
+    return pos
 '''
 setPostionControlMode(False)
 initPos()
@@ -255,3 +276,22 @@ print("------------")
 speed_pos_control(20, 180, False)
 
 '''
+
+def setGains(val,type):
+    #type: true for pos, false for speed
+    #val=[kp,ki,kd]
+    print("")
+    s1 = "FF FE 00 06 "
+    cks_tmp=val[0]+val[1]+val[2]+32 # always use 3.2A current, 100mA for 1
+    gains = to_hex_string(val[0]) + " " + to_hex_string(val[1]) + " " + to_hex_string(val[2]) + " " + to_hex_string(32) + " "
+
+    #for set gain value of position controler
+    if(type):
+        checksum = to_hex_string(255 - (cks_tmp+10) % 256) + " "
+        port_1.write(bytearray.fromhex(s1+checksum+"04 "+gains))
+        print(s1+checksum+"04 "+gains)
+    #for set gain value of speed controler
+    else:
+        checksum = to_hex_string(255 - (cks_tmp + 11) % 256) + " "
+        port_1.write(bytearray.fromhex(s1 + checksum + "05 " + gains))
+        print(s1 + checksum + "05 " + gains)

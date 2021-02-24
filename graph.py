@@ -32,7 +32,11 @@ class Scope(object):
 
     # 그래프 설정
     def update(self, i):
-        y = self.fn()
+        try:
+            y = self.fn()
+        except Exception as e:
+            print("timout occur",str(e))
+            y=0.0
         old_y = self.line.get_ydata()
         new_y = np.r_[old_y[1:], y]
         self.line.set_ydata(new_y)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1020</width>
-    <height>558</height>
+    <width>1029</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>-10</x>
+      <x>0</x>
       <y>0</y>
       <width>1021</width>
-      <height>601</height>
+      <height>561</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -30,7 +30,7 @@
      </sizepolicy>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -40,9 +40,9 @@
       <property name="geometry">
        <rect>
         <x>920</x>
-        <y>0</y>
+        <y>10</y>
         <width>91</width>
-        <height>471</height>
+        <height>451</height>
        </rect>
       </property>
       <property name="orientation">
@@ -50,16 +50,6 @@
       </property>
       <property name="tickPosition">
        <enum>QSlider::NoTicks</enum>
-      </property>
-     </widget>
-     <widget class="QTextEdit" name="textEdit">
-      <property name="geometry">
-       <rect>
-        <x>920</x>
-        <y>480</y>
-        <width>91</width>
-        <height>31</height>
-       </rect>
       </property>
      </widget>
      <widget class="QGroupBox" name="groupBox_3">
@@ -287,23 +277,411 @@
        </size>
       </property>
      </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>940</x>
+        <y>500</y>
+        <width>61</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>13</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Speed</string>
+      </property>
+     </widget>
+     <widget class="QLCDNumber" name="lcd_speed">
+      <property name="geometry">
+       <rect>
+        <x>920</x>
+        <y>470</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
       <string>Calibration&amp;Setting</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton_4">
+     <widget class="QGroupBox" name="groupBox_7">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>280</y>
-        <width>121</width>
-        <height>31</height>
+        <x>10</x>
+        <y>10</y>
+        <width>691</width>
+        <height>241</height>
        </rect>
       </property>
-      <property name="text">
-       <string>PushButton</string>
+      <property name="title">
+       <string>Position Controler</string>
       </property>
+      <widget class="QSlider" name="pos_kp_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>40</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSlider" name="pos_ki_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>110</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSlider" name="pos_kd_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>180</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="pos_kp_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="digitCount">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KP</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KI</string>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="pos_ki_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>120</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KD</string>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="pos_kd_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>190</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>270</y>
+        <width>691</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Speed Controler</string>
+      </property>
+      <widget class="QSlider" name="speed_kp_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>40</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSlider" name="speed_ki_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>110</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSlider" name="speed_kd_slider">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>180</y>
+         <width>591</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>254</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="speed_kp_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_13">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KP</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_14">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KI</string>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="speed_ki_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>120</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_15">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>KD</string>
+       </property>
+      </widget>
+      <widget class="QLCDNumber" name="speed_kd_lcd">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>190</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>10</y>
+        <width>301</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Operating Range Calibration</string>
+      </property>
+      <widget class="QPushButton" name="move_cw">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Move CW</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="set_start">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Start Point</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="move_ccw">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>30</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Move CCW</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="set_end">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>80</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>End Point</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>150</y>
+        <width>301</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Setting</string>
+      </property>
+      <widget class="QPushButton" name="apply_setting">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>131</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="init_setting">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>30</y>
+         <width>131</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Initialize</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>
