@@ -137,6 +137,7 @@ class mainWindow(QMainWindow,form_class,QWidget):
 
     @to.timeout(0.5)
     def getValue(self):
+        
         global currentPos
         pos, speed = sc.getFeedback(1)
         currentPos = pos
