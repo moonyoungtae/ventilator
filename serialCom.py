@@ -6,7 +6,7 @@ import struct
 import timeOut as to
 
 
-port_1 = serial.Serial("/dev/ttyUSB0", baudrate=9600, timeout=3.0)
+port_1 = serial.Serial("/dev/ttyUSB1", baudrate=9600, timeout=3.0)
 # port_2 = serial.Serial("/dev/ttyUSB2", baudrate=9600, timeout=3.0)
 
 slow = bytearray.fromhex("FF FE 00 07 2F 01 00 46 50 00 32")
@@ -20,8 +20,13 @@ speed_control_0 = bytearray.fromhex("FF FE 00 06 EC 03 00 00 00 0A")
 
 absolute = bytearray.fromhex("FF FE 00 03 F1 0B 00")
 
+changeControlDir=bytearray.fromhex("FF FE 00 03 EC 0F 01")
+
 init_pos = bytearray.fromhex("FF FE 00 02 F1 0C")
 
+#port_1.write(bytearray.fromhex("FF FE FF 02 F1 0D"))
+
+port_1.write(absolute)
 def to_hex_string(n):
     first = n // 16
     second = n % 16
@@ -143,8 +148,8 @@ def pos_control(pos,t,dir):
     # t: time to arrive target position
     # dir: true for ccw, false for cw
     if (pos < -1):
-        pos = 360.0+pos
-        #dir=not dir
+        dir=not dir
+    print(pos)
     hex_pos = pos_to_protocol(abs(pos))
     hex_time=time_to_protocol(t)
     cks, rev_cks = get_checksum(0, abs(pos),t,1)
@@ -192,7 +197,6 @@ def speed_pos_control(speed, pos, dir):
     if(speed<0):
         dir=not dir
     if(pos<-1.0):
-        pos=360.0+pos
         dir=not dir
     hex_pos = pos_to_protocol(pos)
     hex_speed = speed_to_protocol(abs(speed))
@@ -226,6 +230,7 @@ def stop():
 
 def initPos():
     port_1.write(init_pos)
+    #port_1.write(changeControlDir)
     print("Position initialized")
     time.sleep(1)
 
@@ -243,12 +248,18 @@ def getFeedback(mode):
         tmp=port_1.read()
         out.append((binascii.hexlify(bytearray(tmp))).decode('ascii'))
     if(mode==1):
+        dir=string_to_num(out[6])
         pos = string_to_num(out[7], out[8])
         speed = string_to_num(out[9], out[10])
+        if(dir==0):
+            pos=-pos
         return pos / 100, speed / 10
     elif(mode==2):
+        dir = string_to_num(out[6])
         speed = string_to_num(out[7], out[8])
         pos = string_to_num(out[9], out[10])
+        if (dir == 0):
+            speed = -speed
         return pos / 100, speed / 10
     elif(mode==3 or mode==4):
         kp=string_to_num("",out[6])

@@ -591,7 +591,7 @@
       <property name="title">
        <string>Operating Range Calibration</string>
       </property>
-      <widget class="QPushButton" name="move_cw">
+      <widget class="QPushButton" name="move_ccw">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -601,7 +601,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Move CW</string>
+        <string>Move CCW</string>
        </property>
       </widget>
       <widget class="QPushButton" name="set_start">
@@ -617,7 +617,7 @@
         <string>Start Point</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="move_ccw">
+      <widget class="QPushButton" name="move_cw">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -627,7 +627,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Move CCW</string>
+        <string>Move CW</string>
        </property>
       </widget>
       <widget class="QPushButton" name="set_end">

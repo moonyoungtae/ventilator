@@ -1,6 +1,6 @@
 import sys
 import time
-from threading import Thread
+from threading import Thread,Lock
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -22,12 +22,13 @@ QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 #speed: rpm, pos: degree, => rotation time(sec)=pos/(360*speed/60)
 speed=0
 modeNum=-1
-mode=[10,20,30,40]
+mode=[7,10,15,20]
 startPos=0.0
 currentPos=0.0
 targetPos=180.0
 stopped=True
 exited=False
+lock=Lock()
 
 class mainWindow(QMainWindow,form_class,QWidget):
     def __init__(self):
@@ -43,7 +44,7 @@ class mainWindow(QMainWindow,form_class,QWidget):
         self.setWindowIcon(QIcon('ven.png'))
 
         self.fig = plt.figure()
-        self.ax=plt.axes(xlim=(0, 60), ylim=(0, 360))
+        self.ax=plt.axes(xlim=(0, 60), ylim=(-90, 270))
         self.ax.grid(True)
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.timeInterval=0.01
@@ -94,8 +95,8 @@ class mainWindow(QMainWindow,form_class,QWidget):
 
         self.set_start.clicked.connect(lambda: self.changed_settings.setStart(self))
         self.set_end.clicked.connect(lambda: self.changed_settings.setEnd(self))
-        self.move_cw.pressed.connect(lambda: sc.speed_control(5,0.5,True))
-        self.move_ccw.pressed.connect(lambda: sc.speed_control(5,0.5,False))
+        self.move_cw.pressed.connect(lambda: sc.speed_control(5,0.5,False))
+        self.move_ccw.pressed.connect(lambda: sc.speed_control(5,0.5,True))
         self.move_cw.released.connect(stop_imm)
         self.move_ccw.released.connect(stop_imm)
 
@@ -138,15 +139,17 @@ class mainWindow(QMainWindow,form_class,QWidget):
     @to.timeout(0.5)
     def getValue(self):
         global currentPos
+        lock.acquire(timeout=0.1)
         pos, speed = sc.getFeedback(1)
-        currentPos = pos
+        lock.release()
+        if(not stopped):
+            currentPos = pos
         return pos
 
     def setMode(self,num):
         if(not stopped):
             self.thread_stop.start()
             time.sleep(0.5)
-            self.thread_init.start()
         self.setSpeed(mode[num])
 
     def setGraph(self,val):
@@ -162,6 +165,8 @@ class mainWindow(QMainWindow,form_class,QWidget):
 
     def start(self):
         global stopped
+        global startPos
+        global targetPos
         if(stopped):
             stopped = False
 
@@ -178,12 +183,13 @@ class mainWindow(QMainWindow,form_class,QWidget):
 
             pos_con = sc.getFeedback(3)
             speed_con = sc.getFeedback(4)
+            sc.initPos()
 
-            self.pos_kd_slider.setValue(pos_con[0])
+            self.pos_kp_slider.setValue(pos_con[0])
             self.pos_ki_slider.setValue(pos_con[1])
             self.pos_kd_slider.setValue(pos_con[2])
 
-            self.speed_kd_slider.setValue(speed_con[0])
+            self.speed_kp_slider.setValue(speed_con[0])
             self.speed_ki_slider.setValue(speed_con[1])
             self.speed_kd_slider.setValue(speed_con[2])
 
@@ -208,6 +214,9 @@ class mainWindow(QMainWindow,form_class,QWidget):
             targetPos = self.changed_settings.end
             sc.setGains(self.changed_settings.pos_controler, True)
             sc.setGains(self.changed_settings.speed_controler, False)
+            print(startPos, targetPos)
+            initialize()
+            sc.initPos()
             print(startPos,targetPos)
             QMessageBox.information(self,"Applied","Changed Settings Applied")
 
@@ -228,20 +237,24 @@ class Thread_move(QtCore.QThread):
                 print("move")
                 mov=abs(targetPos-startPos)
                 while (not stopped):
-                    currentDir = not currentDir
+                    #currentDir = not currentDir
                     print("move")
                     print(currentDir)
+                    lock.acquire()
                     sc.pos_control( pos2, abs(mov /(6*speed)),currentDir)
+                    lock.release()
 
-                    time.sleep(abs(mov /(6*speed)))
+                    time.sleep(abs(mov /(6*speed))+0.05)
                     if (stopped):
                         break
 
-                    currentDir = not currentDir
+                    #currentDir = not currentDir
                     print("move")
                     print(currentDir)
+                    lock.acquire()
                     sc.pos_control( pos1, abs(mov /(6*speed)),currentDir)
-                    time.sleep(abs(mov /(6*speed)))
+                    lock.release()
+                    time.sleep(abs(mov /(6*speed))+0.05)
                 '''
                 print("start moving")
                 pos1 = -currentPos
@@ -264,26 +277,42 @@ class Thread_stop(QtCore.QThread):
     def run(self):
         stop_imm()
         global stopped
-        global currentPos
         if (not stopped):
-            stopped = True
-            sc.pos_control(startPos, abs((startPos - currentPos) / (6 * 5)), False)
-            time.sleep(abs((startPos - currentPos) / (6 * 5)))
-            currentPos = startPos
+            stop()
+            initialize()
 
 class Thread_init(QtCore.QThread):
     def __init__(self,parent = None):
         super(Thread_init,self).__init__(parent)
 
     def run(self):
-        global stopped
         global currentPos
         if(stopped):
-            stopped=True
-            sc.pos_control(startPos, abs((startPos-currentPos)/ (6 * 5)), False)
-            time.sleep(abs((startPos-currentPos)/ (6 * 5)))
+            lock.acquire()
+            sc.pos_control(startPos, abs((startPos-currentPos)/ (6 * 5)),  False)
+            lock.release()
+            time.sleep(abs((startPos-currentPos)/ (6 * 5))+0.1)
             currentPos = startPos
             stop()
+
+def initialize():
+    global currentPos
+    global startPos
+    global targetPos
+    print("initializing")
+    sc.pos_control(0,0.2,False)
+    time.sleep(0.2)
+    if (stopped):
+        print(startPos)
+        lock.acquire()
+        sc.pos_control(startPos-currentPos, abs((startPos - currentPos) / (6 * 10)), False)
+        lock.release()
+        time.sleep(abs((startPos - currentPos) / (6 * 10)) + 0.5)
+        time.sleep(1.0)
+        currentPos = startPos
+        targetPos = targetPos - startPos
+        startPos = 0
+        stop()
 
 class Setting():
     def __init__(self):
